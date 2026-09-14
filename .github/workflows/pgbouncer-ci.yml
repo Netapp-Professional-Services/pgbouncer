@@ -83,7 +83,12 @@ jobs:
       ENABLE_VALGRIND: ${{ matrix.enable_valgrind }}
       DIST: ${{ matrix.dist }}
     steps: &linux_steps
-      - uses: actions/checkout@v7
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install dependencies
         run: |
           set -e
@@ -139,14 +144,14 @@ jobs:
           sh ci/run.sh dist "$BUILD_SYSTEM"
       - name: Upload tarball
         if: ${{ env.DIST == 'yes' }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pgbouncer-tarball-${{ matrix.name }}
           path: dist/pgbouncer-*.tar.gz
           if-no-files-found: error
       - name: Upload build logs
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logs-${{ matrix.name }}
           path: |
@@ -213,7 +218,12 @@ jobs:
       MESON_ARGS: -Dcassert=true -Dsystemd=enabled -Dcares=disabled
       CONFIGURE_ARGS: --enable-cassert --with-systemd --without-cares
     steps:
-      - uses: actions/checkout@v7
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install dependencies
         run: |
           set -e
@@ -237,7 +247,7 @@ jobs:
         run: su user -c "PATH=/venv/bin:\$PATH sh ci/run.sh install $BUILD_SYSTEM"
       - name: Upload build logs
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logs-${{ matrix.name }}-${{ matrix.build_system }}
           path: |
@@ -266,7 +276,12 @@ jobs:
       BUILD_SYSTEM: meson
       MESON_ARGS: -Dcassert=true -Dsystemd=enabled -Dldap=enabled -Dpam=enabled ${{ matrix.meson_args }}
     steps:
-      - uses: actions/checkout@v7
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install dependencies
         run: |
           set -e
@@ -296,7 +311,7 @@ jobs:
         run: su user -c "sh ci/run.sh install $BUILD_SYSTEM"
       - name: Upload build logs
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logs-${{ matrix.name }}
           path: |
@@ -325,6 +340,11 @@ jobs:
       BUILD_SYSTEM: meson
       MESON_ARGS: -Dcassert=true -Dcares=enabled -Dldap=enabled -Dsystemd=disabled
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
       - name: Install dependencies
         run: |
           apk add --no-cache build-base c-ares-dev git iptables libevent-dev meson ninja openldap openldap-clients openldap-dev openssl openssl-dev pkgconf postgresql postgresql-contrib python3 py3-pip socat sudo wget
@@ -365,7 +385,12 @@ jobs:
       LDFLAGS: -L/opt/homebrew/opt/openldap/lib -L/opt/homebrew/opt/openssl@3/lib
       PKG_CONFIG_PATH: /opt/homebrew/opt/openssl@3/lib/pkgconfig:/opt/homebrew/opt/openldap/lib/pkgconfig
     steps:
-      - uses: actions/checkout@v7
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install dependencies
         run: |
           set -e
@@ -393,7 +418,7 @@ jobs:
         run: sh ci/run.sh install "$BUILD_SYSTEM"
       - name: Upload build logs
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logs-macos
           path: |
@@ -420,7 +445,12 @@ jobs:
       run:
         shell: 'C:\msys64\usr\bin\bash.exe --login -eo pipefail {0}'
     steps:
-      - uses: actions/checkout@v7
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install pandoc
         shell: pwsh
         run: choco install -y --no-progress pandoc
@@ -448,14 +478,14 @@ jobs:
       - name: Build zip
         run: meson compile -C build zip
       - name: Upload zip
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pgbouncer-windows-zip
           path: build/pgbouncer-*.zip
           if-no-files-found: error
       - name: Upload build logs
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: logs-windows
           path: |
@@ -467,8 +497,13 @@ jobs:
     name: Formatting & linting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.x"
       - name: Install dependencies
@@ -480,7 +515,7 @@ jobs:
       # Cache the resulting binary keyed on the pinned version so it is only
       # rebuilt when we bump UNCRUSTIFY_VERSION in the script.
       - name: Cache uncrustify
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: uncrustify
           key: uncrustify-0.77.1-${{ runner.os }}
